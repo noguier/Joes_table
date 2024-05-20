@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link href="home.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+</head>
+<body>
+    <div id="navbar">
+		<a href="loggedhome.html">
+        <h1>JoesTable!</h1></a>
+        <div id="nav">
+			 <a href="home.html">Logout </a>
+			 <a href="reservations.html">Reservations </a>
+            <a href="favorites.html">Favorites</a>
+            <a href="loggedhome.html">Home </a>
+            <div class="clearfloat"></div>
+        </div>
+    </div>
+    <div class="container">
+        <form id="searchRest" method="POST" action="RestaurantSearchServlet">
+            <table>
+                <tr>
+                    <td colspan="2">
+                        <input type="text" name="restaurantName" placeholder="Restaurant Name" required />
+                        <button type="submit" id="submitBtn"><i class="fa fa-search" aria-hidden="true"></i></button>
+                    </td>
+                    <td>
+                        <input type="radio" name="searchOpt" value="best_match" required />Best Match
+                        <input type="radio" name="searchOpt" value="review_count" />Review Count
+                        <input type="radio" name="searchOpt" value="rating" />Rating
+                        <input type="radio" name="searchOpt" value="distance" />Distance
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="latitude" placeholder="Latitude" required/></td>
+                    <td><input type="text" name="longitude" placeholder="Longitude" required/></td>
+                    <td><button type="button" onclick="submitForm()">Google Maps (Drop a pin!)</button></td>
+                </tr>
+            </table>
+        </form>
+        
+        <div id="UsernameandSort" >
+		 <div id="usernameDisplay">
+		 </div>
+		 <div id="sortOptions">
+    		<label for="sortBy">Sort By:</label>
+    		<select id="sortBy" onchange="sortRestaurants()">
+       		 <option value="nameAsc">A to Z</option>
+       		 <option value="nameDesc">Z to A</option>
+       		 <option value="ratingDesc">Highest Rating</option>
+       		 <option value="ratingAsc">Lowest Rating</option>
+       		 <option value="recent">Most Recent</option>
+       		 <option value="oldest">Least Recent</option>
+    		</select>
+</div>
+        </div>
+			<div id="myTable">
+				
+			</div>
+    </div>
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<script src ="loggedhome.js"></script>
+<script src="favorites.js"></script>
+<script>
+ var username = sessionStorage.getItem('username');
+
+
+// Check if the username is present
+if (username) {
+    // Display the username on the page
+   document.getElementById("usernameDisplay").innerHTML = "Welcome, " + username + "!";
+} else {
+    // Handle the case when the username is not present
+    document.getElementById("usernameDisplay").innerHTML = "Welcome!";
+}
+sessionStorage.setItem('username', username);
+
+// Function to load favorite restaurants on page load
+function loadFavoritesOnLoad() {
+    // Make a GET request to the FavoritesServlet to retrieve favorite restaurants
+    fetch("FavoritesServlet", {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && Array.isArray(data.favorites)) {
+        console.log(data.favorites);
+            // Update the HTML with the favorite restaurant data
+            updateRestaurantTable(data.favorites, "Favorites");
+        } else {
+            // Handle the case where no favorite restaurants are returned
+            console.log("No favorite restaurants returned from the server");
+        }
+    })
+    .catch(error => console.error(error));
+}
+
+function sortRestaurants(){
+	 var sortBy = document.getElementById("sortBy").value;
+	 fetch("FavoritesServlet", {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && Array.isArray(data.favorites)) {
+			if (sortBy === "recent") {
+				var reversed = data.favorites.reverse();
+				updateRestaurantTable(reversed, "Favorites");
+			}
+			else if ( sortBy === "oldest") {
+				updateRestaurantTable(data.favorites, "Favorites");
+			}
+			else {
+			data.favorites.sort((a, b) => compareRestaurants(a, b, sortBy));
+            // Update the HTML with the favorite restaurant data
+            updateRestaurantTable(data.favorites, "Favorites");
+            }
+        } else {
+            // Handle the case where no favorite restaurants are returned
+            console.log("No favorite restaurants returned from the server");
+        }
+    })
+    .catch(error => console.error(error));
+}
+function compareRestaurants(a, b, sortBy) {
+    // Implement your comparison logic based on the sortBy parameter
+    switch (sortBy) {
+        case 'nameAsc':
+            return a.name.localeCompare(b.name);
+        case 'nameDesc':
+            return b.name.localeCompare(a.name);
+        case 'ratingAsc':
+            return a.rating - b.rating;
+        case 'ratingDesc':
+            return b.rating - a.rating;
+        default:
+            return 0;
+    }
+}
+// Add an event listener to the window object for the page load event
+window.addEventListener('load', function() {
+    // Call the function to load favorite restaurants on page load
+    loadFavoritesOnLoad();
+
+    // Your existing code to display the username
+    var username = sessionStorage.getItem('username');
+    if (username) {
+        document.getElementById("usernameDisplay").innerHTML = "Welcome, " + username + "!";
+    } else {
+        document.getElementById("usernameDisplay").innerHTML = "Welcome!";
+    }
+    sessionStorage.setItem('username', username);
+});
+</script>
+
+<style>
+    .restaurant-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 20px;
+        cursor: pointer; /* Add cursor pointer for clickable images */
+    }
+
+    .search-term {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .separator {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 10px 0;
+    }
+
+    .restaurant {
+        margin-bottom: 20px;
+        display:flex;
+        
+    }
+
+    .restaurant h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .detailed-info {
+        margin-top: 20px;
+        display: flex;
+    }
+</style>
+
+</body>
+</html>

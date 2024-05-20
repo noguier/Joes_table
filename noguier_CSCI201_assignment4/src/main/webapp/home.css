@@ -1,0 +1,87 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Galada&family=Sora:wght@200&family=Tangerine:wght@700&display=swap');
+body{
+	justify-content: center;
+	align-items: center;
+	font-family: sans-serif;
+	color:#696969 ;
+}
+.container {
+	width: 1200px;
+	justify-content: center;
+	align-items: center;
+}
+body h1 {
+	color: red;
+	font-family: 'Galada', cursive;
+	font-weight: bold;
+	font-size: 36px;
+	
+}
+#navbar {
+	padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #E1E8EE;
+  	margin-bottom: 20px;
+}
+#navbar a {
+	text-decoration: none;
+}
+
+#nav a {
+    float: right;
+    color: #696969;
+    text-decoration: none;
+    padding:30px 10px;
+}
+
+#nav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+.img {
+	margin: 40px 20px;
+	justify-content: center;
+	align-items: center;
+}
+img{
+	border-radius: 20px;
+    max-width: 80%; 
+    height: auto; 
+}
+ .restaurant-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 20px;
+        cursor: pointer; /* Add cursor pointer for clickable images */
+    }
+
+    .search-term {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .separator {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 10px 0;
+    }
+
+    .restaurant {
+        margin-bottom: 20px;
+        display:flex;
+        
+    }
+
+    .restaurant h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .detailed-info {
+        margin-top: 20px;
+        display: flex;
+    }

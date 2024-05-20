@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link href="home.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+</head>
+<body>
+    <div id="navbar">
+		<a href="loggedhome.html">
+        <h1>JoesTable!</h1></a>
+        <div id="nav">
+			 <a href="home.html">Logout </a>
+			 <a href="reservations.html">Reservations </a>
+            <a href="favorites.html">Favorites</a>
+            <a href="loggedhome.html">Home </a>
+            <div class="clearfloat"></div>
+        </div>
+    </div>
+    <div class="container">
+        
+        <form id="searchRest" method="POST" action="RestaurantSearchServlet">
+            <table>
+                <tr>
+                    <td colspan="2">
+                        <input type="text" name="restaurantName" placeholder="Restaurant Name" required />
+                        <button type="submit" id="submitBtn"><i class="fa fa-search" aria-hidden="true"></i></button>
+                    </td>
+                    <td>
+                        <input type="radio" name="searchOpt" value="best_match" required />Best Match
+                        <input type="radio" name="searchOpt" value="review_count" />Review Count
+                        <input type="radio" name="searchOpt" value="rating" />Rating
+                        <input type="radio" name="searchOpt" value="distance" />Distance
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="latitude" placeholder="Latitude" required/></td>
+                    <td><input type="text" name="longitude" placeholder="Longitude" required/></td>
+                    <td><button type="button" onclick="submitForm()">Google Maps (Drop a pin!)</button></td>
+                </tr>
+            </table>
+        </form>
+		 <div id="usernameDisplay"></div>
+        	<select id="sortBy" onchange="sortReservations()">
+    <option value="mostRecent">Most Recent</option>
+    <option value="leastRecent">Least Recent</option>
+   
+</select>
+			<div id="myTable">
+				
+			</div>
+    </div>
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<script src ="loggedhome.js"></script>
+<script>
+ window.addEventListener('load', function() {
+    // Call the function to load favorite restaurants on page load
+    loadReservationsOnLoad();
+    
+ var username = sessionStorage.getItem('username');
+
+
+// Check if the username is present
+if (username) {
+    // Display the username on the page
+   document.getElementById("usernameDisplay").innerHTML = "Welcome, " + username + "!";
+} else {
+    // Handle the case when the username is not present
+    document.getElementById("usernameDisplay").innerHTML = "Welcome!";
+}
+sessionStorage.setItem('username', username);
+});
+function loadReservationsOnLoad() {
+    fetch("ReservationsServlet")
+        .then(response => response.json())
+        .then(data => {
+            if (data && Array.isArray(data.reservations)) {
+                // Get the container element
+                const reservationsContainer = document.getElementById("myTable");
+
+                // Process reservations in the order they were received
+                data.reservations.forEach(reservation => {
+                    // Display search term above the first div with a faded line
+                    reservationsContainer.innerHTML += "<hr class='separator'/>";
+
+                    var restaurantDiv = document.createElement("div");
+                    restaurantDiv.classList.add("restaurant");
+
+                    // Create a clickable image with the restaurant image URL
+                    var imageTag = document.createElement("img");
+                    imageTag.classList.add("restaurant-image");
+                    imageTag.src = reservation.restaurant.image;
+                    imageTag.alt = reservation.restaurant.name;
+                    imageTag.addEventListener("click", function () {
+                        showDetailedInfo(reservation.restaurant);
+                    });
+
+                    // Create a div with the restaurant name, address, date, and time
+                    var infoDiv = document.createElement("div");
+                    infoDiv.classList.add("info");
+                    infoDiv.innerHTML = "<h3>" + reservation.restaurant.name + "</h3>" +
+                        "<p>" + reservation.restaurant.address.replace(/\[|\]|"/g, '') + "</p>" +
+                        "<p>Date: " + reservation.date + "</p>" +
+                        "<p>Time: " + reservation.time + "</p>";
+
+                    // Append image and info to the restaurant div
+                    restaurantDiv.appendChild(imageTag);
+                    restaurantDiv.appendChild(infoDiv);
+
+                    // Append the restaurant div to the container
+                    reservationsContainer.appendChild(restaurantDiv);
+                });
+            } else {
+                console.log("No reservations returned from the server");
+            }
+        })
+        .catch(error => console.error("Error fetching reservations:", error));
+}
+function sortReservations() {
+    var sortBy = document.getElementById("sortBy").value;
+    
+    fetch("ReservationsServlet")
+        .then(response => response.json())
+        .then(data => {
+            if (data && Array.isArray(data.reservations)) {
+                // Sort reservations based on the selected option
+                if (sortBy === "mostRecent") {
+                    data.reservations.sort((a, b) => new Date(b.date + " " + b.time) - new Date(a.date + " " + a.time));
+                } else if (sortBy === "leastRecent") {
+                    data.reservations.sort((a, b) => new Date(a.date + " " + a.time) - new Date(b.date + " " + b.time));
+                }
+
+                // Clear existing content in reservationsContainer
+                const reservationsContainer = document.getElementById("myTable");
+                reservationsContainer.innerHTML = "";
+
+                // Process sorted reservations
+                data.reservations.forEach(reservation => {
+                    // Display search term above the first div with a faded line
+                    reservationsContainer.innerHTML += "<hr class='separator'/>";
+
+                    var restaurantDiv = document.createElement("div");
+                    restaurantDiv.classList.add("restaurant");
+
+                    // Create a clickable image with the restaurant image URL
+                    var imageTag = document.createElement("img");
+                    imageTag.classList.add("restaurant-image");
+                    imageTag.src = reservation.restaurant.image;
+                    imageTag.alt = reservation.restaurant.name;
+                    imageTag.addEventListener("click", function () {
+                        showDetailedInfo(reservation.restaurant);
+                    });
+
+                    // Create a div with the restaurant name, address, date, and time
+                    var infoDiv = document.createElement("div");
+                    infoDiv.classList.add("info");
+                    infoDiv.innerHTML = "<h3>" + reservation.restaurant.name + "</h3>" +
+                        "<p>" + reservation.restaurant.address.replace(/\[|\]|"/g, '') + "</p>" +
+                        "<p>Date: " + reservation.date + "</p>" +
+                        "<p>Time: " + reservation.time + "</p>";
+
+                    // Append image and info to the restaurant div
+                    restaurantDiv.appendChild(imageTag);
+                    restaurantDiv.appendChild(infoDiv);
+
+                    // Append the restaurant div to the container
+                    reservationsContainer.appendChild(restaurantDiv);
+                });
+            } else {
+                console.log("No reservations returned from the server");
+            }
+        })
+        .catch(error => console.error("Error fetching reservations:", error));
+}
+</script>
+
+<style>
+    .restaurant-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 20px;
+        cursor: pointer; /* Add cursor pointer for clickable images */
+    }
+
+    .search-term {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .separator {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 10px 0;
+    }
+
+    .restaurant {
+        margin-bottom: 20px;
+        display:flex;
+        
+    }
+
+    .restaurant h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .detailed-info {
+        margin-top: 20px;
+        display: flex;
+    }
+</style>
+
+</body>
+</html>

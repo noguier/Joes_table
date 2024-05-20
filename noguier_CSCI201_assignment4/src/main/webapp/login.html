@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Signup</title>
+    <link rel="stylesheet" href="login.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+</head>
+<body>
+    <div id="navbar">
+		<a href="home.html">
+        <h1>JoesTable!</h1></a>
+        <div id="nav">
+            <a href="login.html">Login/Sign Up </a>
+            <a href="home.html">Home </a>
+            <div class="clearfloat"></div>
+        </div>
+    </div><!-- #nav -->
+    <div class="clearfloat"></div>
+    <div class="container"> 
+        <div class="form1"> 
+            <h2>Login</h2>
+            <div id="loginMsg"></div>
+            <form id="loginForm">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" name="username" required/>
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" name="password" required/>
+                <button type="button" onclick="login()"><i class="fa fa-sign-in" aria-hidden="true"></i> Sign In</button>
+            </form>
+        </div>
+        <div class="form2"> 
+            <h2>Sign Up</h2>
+            <div id="signupMsg"></div>
+            <form id="signupForm">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" name="email" required/>
+                <label for="signupUsername">Username</label>
+                <input type="text" id="signupUsername" name="username" required/>
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" name="password" required/>
+                <label for="signupConfirmPassword">Confirm Password</label>
+                <input type="password" id="signupConfirmPassword" name="confirmPassword" required/>
+                <label> 
+				<input type="checkbox" name="agree" value="yes" required/> 
+				I have read and agree to all terms and conditions of JoesTable.
+				</label>
+                <button type="button" onclick="registerUser()"> <i class="fa fa-user-plus" aria-hidden="true"></i> Create Account</button>
+            </form>
+        </div>
+        <div class="clearfloat"></div>
+    </div>
+	<script>
+    function registerUser() {
+        // Get user input
+        var username = document.getElementById("signupUsername").value;
+        var password = document.getElementById("signupPassword").value;
+        var email = document.getElementById("signupEmail").value;
+
+        // Create user object
+        var user = {
+            username: username,
+            password: password,
+            email: email
+        };
+
+        // Make AJAX request to backend
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "SignUpServlet", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    // Successful registration
+                    var response = JSON.parse(xhr.responseText);
+                    window.location.href = "loggedhome.html"; // Redirect to homepage
+                } else {
+                    // Registration failed
+                    var error = JSON.parse(xhr.responseText);
+                    displayError(error);
+                }
+            }
+        };
+
+        // Convert user object to JSON and send the request
+        xhr.send(JSON.stringify(user));
+    }
+
+    function displayError(error) {
+        var signupMsg = document.getElementById("signupMsg");
+        signupMsg.innerHTML = ""; // Clear previous messages
+        var errorMessage = document.createElement("div");
+        errorMessage.className = "error";
+        errorMessage.textContent = error;
+
+        signupMsg.appendChild(errorMessage);
+    }
+    function login() {
+    var username = document.getElementById("loginUsername").value;
+    var password = document.getElementById("loginPassword").value;
+
+    var data = {
+        username: username,
+        password: password
+    };
+
+    // Make an AJAX request
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "LoginServlet", true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                // Successful login
+                var response = JSON.parse(xhr.responseText);
+                console.log(username);
+                sessionStorage.setItem('username', username);
+                //console.log(sessionStorage.getItem('username'));
+                window.location.href = "loggedhome.html"; 
+            } else {
+                // Failed login
+                var response = JSON.parse(xhr.responseText);
+                document.getElementById("loginMsg").innerHTML = response;
+            }
+        }
+    };
+
+    xhr.send(JSON.stringify(data));
+
+    return false;
+}
+
+</script>
+
+</body>
+</html>

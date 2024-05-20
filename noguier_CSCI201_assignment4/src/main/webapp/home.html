@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link href="home.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+</head>
+<body>
+    <div id="navbar">
+		<a href="home.html">
+        <h1>JoesTable!</h1></a>
+        <div id="nav">
+            <a href="login.html">Login/Sign Up </a>
+            <a href="home.html">Home </a>
+            <div class="clearfloat"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="image">
+            <img class="homepage" src="homepage.jpg" alt="food"/>
+        </div>
+        
+        <form id="searchRest" method="POST" action="RestaurantSearchServlet">
+            <table>
+                <tr>
+                    <td colspan="2">
+                        <input type="text" name="restaurantName" placeholder="Restaurant Name" required />
+                        <button type="submit" id="submitBtn"> <i class="fa fa-search" aria-hidden="true"></i></button>
+                    </td>
+                    <td>
+                        <input type="radio" name="searchOpt" value="best_match" required />Best Match
+                        <input type="radio" name="searchOpt" value="review_count" />Review Count
+                        <input type="radio" name="searchOpt" value="rating" />Rating
+                        <input type="radio" name="searchOpt" value="distance" />Distance
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="latitude" placeholder="Latitude" required/></td>
+                    <td><input type="text" name="longitude" placeholder="Longitude" required/></td>
+                    <td><button type="button" onclick="submitForm()"><i class="fas fa-map-marker-alt"></i> Google Maps (Drop a pin!)</button></td>
+                </tr>
+            </table>
+        </form>
+		
+  
+			<div id="myTable">
+				
+			</div>
+    </div>
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+
+
+<script src ="home.js"></script>
+
+
+
+<style>
+    .restaurant-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 20px;
+        cursor: pointer; /* Add cursor pointer for clickable images */
+    }
+
+    .search-term {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .separator {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 10px 0;
+    }
+
+    .restaurant {
+        margin-bottom: 20px;
+        display:flex;
+        
+    }
+
+    .restaurant h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .detailed-info {
+        margin-top: 20px;
+        display: flex;
+    }
+</style>
+
+
+
+
+
+</body>
+</html>
